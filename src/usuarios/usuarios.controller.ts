@@ -1,7 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { UsuariosRepository } from './usuarios.repository';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
+import { v4 as uuid } from 'uuid';
+import { UsuariosEntity } from './usuarios.entity';
+import { ListaUsuarioDTO } from './dto/lista-usuario.dto';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto ';
 
 @Controller('/usuarios')
 export class UsuariosController {
@@ -23,9 +27,22 @@ export class UsuariosController {
   async listaUsuarios() {
     const usuariosSalvo = await this.usuarioResitory.listaUsuarios();
     const usuariosLista = usuariosSalvo.map(
-      (usuario) => new ListaUsuarioDTO(usuario.id, usuario.name),
+      (usuario) => new ListaUsuarioDTO(usuario.id, usuario.nome),
     );
 
     return usuariosLista;
+  }
+
+  @Put('/:id')
+  async atualizaUsuario(
+    @Param('id') id: string,
+    @Body() novosDados: UpdateUsuarioDto,
+  ) {
+    const usuarioAtualizado = await this.usuarioResitory.update(id, novosDados);
+
+    return {
+      usuario: usuarioAtualizado,
+      message: 'Usuario atualizado com sucesso',
+    };
   }
 }
